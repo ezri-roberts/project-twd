@@ -16,6 +16,7 @@ typedef struct {
 
 typedef struct {
     int health;
+    float resistance; // Add resistance to health component
 } HealthComponent;
 
 typedef struct {
@@ -38,6 +39,7 @@ void destroy_entity(const char *key);
 void update_movement_system(float deltaTime);
 void render_system(void);
 void destroy_all_entities(void);
+void apply_damage(GameEntity *enemy, int incomingDamage); // Declaration for apply_damage
 
 #endif
 

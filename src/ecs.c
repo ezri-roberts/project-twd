@@ -10,11 +10,10 @@ void init_entities() {
 }
 
 // Function to create a new entity
-GameEntity *create_entity(float x, float y, float speed, int health) {
+GameEntity *create_entity(EnemyType type, float x, float y, float speed, int health) {
     GameEntity *newEntity = malloc(sizeof(GameEntity));
     newEntity->entity.isActive = true;
-    newEntity->position.x = x;
-    newEntity->position.y = y;
+    newEntity->position.position = position;
     newEntity->speed.speed = speed;
     newEntity->health.health = health;
     return newEntity;
@@ -37,6 +36,22 @@ void destroy_entity(const char *key) {
     }
 }
 
+// Function to apply damage to an enemy entity
+void apply_damage(GameEntity (*enemy, int incomingDamage) {
+	if (!enemy->entity.isActive) return; // check if active
+	
+	// Calculate actual damage considering resistnace
+	float damageTaken = incomingDamage * (1.0f - enemy->health.health / 100.0f);
+	if (damageTaken < 0) damageTaken = 0; // ensures damage can't go below zero
+	
+	enemy->health.health -= damageTaken; // applies damage
+	if (enemy->health.health <= 0) {
+		enemy->entity.isActive - false; // marks enemy as inactive if health is zero
+	}
+}
+
+	
+
 // Function to update entity movement
 void update_movement_system(float deltaTime) {
     map_iter_t iter = map_iter_();
@@ -44,7 +59,6 @@ void update_movement_system(float deltaTime) {
     while ((key = map_next_(&entity_map, &iter))) {
         GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
         if (entity && entity->entity.isActive) {
-            // Move entity by its speed
             entity->position.x += entity->speed.speed * deltaTime;
         }
     }
@@ -57,8 +71,7 @@ void render_system(void) {
     while ((key = map_next_(&entity_map, &iter))) {
         GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
         if (entity && entity->entity.isActive) {
-            // Render the entity (e.g., as a red circle)
-            DrawCircle(entity->position.x, entity->position.y, 20, RED);
+            DrawCircleV(entity->position.x, entity->position.y, 20, RED);
         }
     }
 }
@@ -76,5 +89,4 @@ void destroy_all_entities(void) {
     }
 
     map_deinit_(&entity_map);
-}
 

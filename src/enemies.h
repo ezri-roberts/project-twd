@@ -16,6 +16,7 @@ typedef struct {
     int speed;
     float x, y;
     EnemyType type;
+    float resistance
 } EnemyComponent;
 
 // Function declarations

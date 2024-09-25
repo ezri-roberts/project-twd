@@ -10,6 +10,7 @@ GameEntity *create_enemy(EnemyType type, float x, float y, int speed, int damage
     enemyComp->x = x;
     enemyComp->y = y;
     enemyComp->type = type;
+    enemyComp->resistance = resitance;
 
     add_entity("enemy", enemy); // Add enemy to the ECS map
 
