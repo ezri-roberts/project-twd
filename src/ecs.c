@@ -10,10 +10,11 @@ void init_entities() {
 }
 
 // Function to create a new entity
-GameEntity *create_entity(Vector2 position, float speed, int health) {
+GameEntity *create_entity(float x, float y, float speed, int health) {
     GameEntity *newEntity = malloc(sizeof(GameEntity));
     newEntity->entity.isActive = true;
-    newEntity->position.position = position;
+    newEntity->position.x = x;
+    newEntity->position.y = y;
     newEntity->speed.speed = speed;
     newEntity->health.health = health;
     return newEntity;
@@ -43,7 +44,8 @@ void update_movement_system(float deltaTime) {
     while ((key = map_next_(&entity_map, &iter))) {
         GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
         if (entity && entity->entity.isActive) {
-            entity->position.position.x += entity->speed.speed * deltaTime;
+            // Move entity by its speed
+            entity->position.x += entity->speed.speed * deltaTime;
         }
     }
 }
@@ -55,7 +57,8 @@ void render_system(void) {
     while ((key = map_next_(&entity_map, &iter))) {
         GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
         if (entity && entity->entity.isActive) {
-            DrawCircleV(entity->position.position, 20, RED);
+            // Render the entity (e.g., as a red circle)
+            DrawCircle(entity->position.x, entity->position.y, 20, RED);
         }
     }
 }
@@ -73,4 +76,5 @@ void destroy_all_entities(void) {
     }
 
     map_deinit_(&entity_map);
+}
 

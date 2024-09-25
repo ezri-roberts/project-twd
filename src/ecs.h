@@ -7,7 +7,7 @@
 
 // Entity Components
 typedef struct {
-    Vector2 position;
+    float x, y; // Separate x and y coordinates instead of Vector2
 } PositionComponent;
 
 typedef struct {
@@ -32,7 +32,7 @@ typedef struct {
 
 // Function declarations
 void init_entities(void);
-GameEntity *create_entity(Vector2 position, float speed, int health);
+GameEntity *create_entity(float x, float y, float speed, int health);
 void add_entity(const char *key, GameEntity *entity);
 void destroy_entity(const char *key);
 void update_movement_system(float deltaTime);
