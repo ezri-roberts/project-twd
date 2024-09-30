@@ -8,11 +8,13 @@
 
 typedef enum {
 	ASSET_IMAGE,
+	ASSET_FONT,
 	ASSET_AUDIO,
 } AssetType;
 
 typedef union {
 	Texture2D texture;
+	Font font;
 } AssetData;
 
 typedef struct Asset {
@@ -40,7 +42,5 @@ void assets_add(const char *path);
 Asset* assets_get(const char *path);
 void _dir_recurse(const char *path);
 const char* _get_file_ext(const char *path);
-
-void assets_image_example();
 
 #endif //ASSETS_H
