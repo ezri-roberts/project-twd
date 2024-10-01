@@ -1,61 +1,57 @@
 #include "canvas.h"
-#include "log.h"
+#include "entity_movement.h"
+#include "map.h"
+#include "ecs.h"
 
-Canvas canvas_init(int width, int height, int filter) {
+// Declare entity_map as an external variable
+extern map_base_t entity_map;
 
-	Canvas canvas;
+void canvas_resize(Canvas *canvas) {
+    float scale = MIN(
+        (float)GetScreenWidth()/canvas->width,
+        (float)GetScreenHeight()/canvas->height
+    );
 
-	canvas.width = width;
-	canvas.height = height;
-	canvas.target = LoadRenderTexture(width, height);
-	canvas.source.x = 0.0f;
-	canvas.source.y = 0.0f;
+    canvas->source.width = (float)canvas->width;
+    canvas->source.height = -(float)canvas->height;
 
-	SetTextureFilter(canvas.target.texture, filter);
-
-	log_info("Initialized canvas.");
-
-	return canvas;
-}
-
-void canvas_destroy(Canvas *canvas) {
-	UnloadRenderTexture(canvas->target);
-	log_info("Destroyed canvas");
-}
-
-void canvas_update(Canvas *canvas) {
-
-	float scale = MIN(
-		(float)GetScreenWidth()/canvas->width,
-		(float)GetScreenHeight()/canvas->height
-	);
-
-	canvas->source.width = (float)canvas->width;
-	canvas->source.height = -(float)canvas->height;
-
-	canvas->dest.x = (GetScreenWidth() - ((float)canvas->width*scale)) * 0.5f;
-	canvas->dest.y = (GetScreenHeight() - ((float)canvas->height*scale)) * 0.5f;
-	canvas->dest.width = (float)canvas->width * scale;
-	canvas->dest.height= (float)canvas->height * scale;
+    canvas->dest.x = (GetScreenWidth() - ((float)canvas->width * scale)) * 0.5f;
+    canvas->dest.y = (GetScreenHeight() - ((float)canvas->height * scale)) * 0.5f;
+    canvas->dest.width = (float)canvas->width * scale;
+    canvas->dest.height = (float)canvas->height * scale;
 }
 
 void canvas_begin(Canvas *canvas) {
-	BeginTextureMode(canvas->target);
+    BeginTextureMode(canvas->target);
+    ClearBackground(WHITE);
 }
 
 void canvas_end() {
-	EndTextureMode();
+    EndTextureMode();
 }
 
 void canvas_draw(Canvas *canvas) {
+    ClearBackground(BLACK);
 
-	// ClearBackground(BLACK);
-	DrawTexturePro(
-		canvas->target.texture,
-		canvas->source,	
-		canvas->dest,
-		(Vector2){0, 0},
-		0.0f,
-		WHITE
-	);
+    // Draw the canvas texture
+    DrawTexturePro(
+        canvas->target.texture,
+        canvas->source, 
+        canvas->dest,
+        (Vector2){0, 0},
+        0.0f,
+        WHITE
+    );
+
+    // Draw all entities on the canvas
+    map_iter_t iter = map_iter_();
+    const char *key;
+    while ((key = map_next_(&entity_map, &iter))) {
+        GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
+        if (entity && entity->entity.isActive) {
+            // Draw entities as circles (or any other primitive) using position and size
+            DrawCircleV((Vector2){entity->position.x, entity->position.y}, 20, RED); 
+        }
+    }
 }
+

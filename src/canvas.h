@@ -1,8 +1,8 @@
 #ifndef CANVAS_H
 #define CANVAS_H
 
-#include "../lib/raylib/src/raylib.h"
-#include "../lib/raylib/src/raymath.h"
+#include "raylib.h"
+#include "raymath.h"
 
 // Returns the biggest value.
 #define MAX(a, b) ((a)>(b)? (a) : (b))
@@ -18,7 +18,7 @@ typedef struct {
 } Canvas ;
 
 // Create and initialize a new Canvas.
-Canvas canvas_init(int width, int height, int filter);
+Canvas canvas_init(int width, int height);
 // Destroy a canvas and any allocated memory.
 void canvas_destroy(Canvas *canvas);
 // Update a canvas and calculate its position and scale.
@@ -32,3 +32,4 @@ void canvas_end();
 void canvas_draw(Canvas *canvas);
 
 #endif // CANVAS_H
+

@@ -1,10 +1,11 @@
 #ifndef ENTITY_MOVEMENT_H
 #define ENTITY_MOVEMENT_H
 
-#include "dummy_entity.h"
+#include "ecs.h"
 
-// Function prototype to move multiple entities
-void move_entities(DummyEntity entities[], int num);
+// Function declarations for entity movement
+void update_movement_system(float deltaTime);
+void apply_damage(GameEntity *entity, int incomingDamage); // Apply damage, considering resistance
 
 #endif
 

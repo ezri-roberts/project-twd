@@ -13,16 +13,16 @@ typedef enum {
 // Enemy-specific components
 typedef struct {
     int damage;
-    int speed;
-    float x, y;
+    float speed;
     EnemyType type;
-    float resistance
+    float resistance;
 } EnemyComponent;
 
 // Function declarations
-GameEntity *create_enemy(EnemyType type, float x, float y, int speed, int damage);
+GameEntity *create_enemy(EnemyType type, float x, float y, int speed, int damage, float resistance);
 void update_enemy_system(float deltaTime);
 void render_enemy_system(void);
 
 #endif
+
 

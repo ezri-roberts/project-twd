@@ -3,6 +3,7 @@
 
 #include "raylib.h"
 #include "map.h"
+#include "enemies.h" // Assuming EnemyType is declared here
 #include <stdbool.h>
 
 // Entity Components
@@ -29,17 +30,32 @@ typedef struct {
     PositionComponent position;
     SpeedComponent speed;
     HealthComponent health;
+    EnemyComponent *component; 
 } GameEntity;
 
-// Function declarations
+// Initializes the entity map
 void init_entities(void);
-GameEntity *create_entity(float x, float y, float speed, int health);
+
+// Creates a new game entity
+GameEntity *create_entity(EnemyType type, float x, float y, float speed, int health);
+
+// Adds an entity to the entity map
 void add_entity(const char *key, GameEntity *entity);
+
+// Destroys an entity in the entity map
 void destroy_entity(const char *key);
+
+// Updates the movement system for all active entities
 void update_movement_system(float deltaTime);
+
+// Renders all active entities
 void render_system(void);
+
+// Destroys all entities and frees resources
 void destroy_all_entities(void);
-void apply_damage(GameEntity *enemy, int incomingDamage); // Declaration for apply_damage
+
+// Applies damage to a game entity
+void apply_damage(GameEntity *enemy, int incomingDamage);
 
 #endif
 
