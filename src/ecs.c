@@ -1,95 +1,103 @@
 #include "ecs.h"
-#include <stdlib.h>
-#include "enemies.h"
+#include <stdio.h>
 
-// Map to hold all entities
-map_base_t entity_map;
+// Internal array of entities
+static GameEntity entities[MAX_ENTITIES];
+static int entity_count = 0;
 
-// Function to initialize the map for entities
-void init_entities() {
-    map_init_(&entity_map);
+// Create a new entity
+GameEntity* create_entity() {
+    if (entity_count >= MAX_ENTITIES) return NULL;
+    GameEntity *entity = &entities[entity_count++];
+    entity->id = entity_count;
+    entity->componentMask = 0; 
+    return entity;
 }
 
-// Function to create a new entity
-GameEntity *create_entity(EnemyType type, float x, float y, float speed, int health) {
-    GameEntity *newEntity = malloc(sizeof(GameEntity));
-    newEntity->entity.isActive = true;
-    newEntity->position.x = x;
-    newEntity->position.y = y;
-    newEntity->speed.speed = speed;
-    newEntity->health.health = health;
-    return newEntity;
-}
+// Add an entity to the ECS system
+void add_entity(GameEntity *entity) {
+    if (!entity) return;
 
-// Function to add a new entity to the world
-void add_entity(const char *key, GameEntity *entity) {
-    if (entity != NULL) {
-        map_set_(&entity_map, key, entity, sizeof(GameEntity));
+    // Check if the entity is already in the system (simple check by ID)
+    for (int i = 0; i < entity_count; i++) {
+        if (entities[i].id == entity->id) {
+            printf("Entity with ID %d already exists in the system.\n", entity->id);
+            return;
+        }
     }
+
+    // If not already in the system, assign the entity to the internal array
+    entities[entity_count] = *entity;
+    entity_count++;
+
+    // Log addition for debug purposes
+    printf("Entity with ID %d added to the system. Total entities: %d\n", entity->id, entity_count);
 }
 
-// Function to destroy an entity
-void destroy_entity(const char *key) {
-    GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
-    if (entity) {
-        entity->entity.isActive = false;
-        free(entity); // Free memory
-        map_remove_(&entity_map, key);
+// Remove an entity from the system
+void remove_entity(GameEntity *entity) {
+    if (!entity) return;
+
+    // Find the entity in the ECS and remove it by shifting the remaining entities
+    for (int i = 0; i < entity_count; i++) {
+        if (entities[i].id == entity->id) {
+            // Shift all the remaining entities left
+            for (int j = i; j < entity_count - 1; j++) {
+                entities[j] = entities[j + 1];
+            }
+            entity_count--;
+            printf("Entity with ID %d removed. Total entities: %d\n", entity->id, entity_count);
+            return;
+        }
     }
+    printf("Entity with ID %d not found for removal.\n", entity->id);
 }
 
-// Function to apply damage to an enemy entity
-void apply_damage(GameEntity *enemy, int incomingDamage) {
-    if (!enemy->entity.isActive) return; // check if active
+// Update all entities in the ECS
+void update_entity_system(float deltaTime) {
+    for (int i = 0; i < entity_count; i++) {
+        GameEntity *entity = &entities[i];
 
-    // Calculate actual damage considering resistance
-    float damageTaken = incomingDamage * (1.0f - enemy->health.resistance);
-    if (damageTaken < 0) damageTaken = 0; // ensures damage can't go below zero
-
-    enemy->health.health -= damageTaken; // applies damage
-    if (enemy->health.health <= 0) {
-        enemy->entity.isActive = false; // marks enemy as inactive if health is zero
-    }
-}
-
-// Function to update entity movement
-void update_movement_system(float deltaTime) {
-    map_iter_t iter = map_iter_();
-    const char *key;
-    while ((key = map_next_(&entity_map, &iter))) {
-        GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
-        if (entity && entity->entity.isActive) {
-            entity->position.x += entity->speed.speed * deltaTime;
+        // Movement system: update position based on speed and deltaTime
+        if ((entity->componentMask & (COMPONENT_POSITION | COMPONENT_ENEMY)) == (COMPONENT_POSITION | COMPONENT_ENEMY)) {
+            entity->position.x += entity->enemy.speed * deltaTime;
+            entity->position.y += entity->enemy.speed * deltaTime;
         }
     }
 }
 
-// Function to render all active entities
-void render_system(void) {
-    map_iter_t iter = map_iter_();
-    const char *key;
-    while ((key = map_next_(&entity_map, &iter))) {
-        GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
-        if (entity && entity->entity.isActive) {
-            DrawCircle(entity->position.x, entity->position.y, 20, RED);
+// Collision detection system: Check for collisions between entities
+void handle_collisions() {
+    for (int i = 0; i < entity_count; i++) {
+        GameEntity *a = &entities[i];
+
+        // Only check entities that have a collision component
+        if (!(a->componentMask & COMPONENT_COLLISION)) continue;
+
+        for (int j = i + 1; j < entity_count; j++) {
+            GameEntity *b = &entities[j];
+
+            // Both entities must have the collision component to check collisions
+            if (!(b->componentMask & COMPONENT_COLLISION)) continue;
+
+            // Check if their bounding boxes overlap
+            if (CheckCollisionRecs(a->collision.bounds, b->collision.bounds)) {
+                // Handle the collision (e.g., apply damage, stop movement, etc.)
+                apply_damage(b, a->health.damage);
+                apply_damage(a, b->health.damage);
+            }
         }
     }
 }
 
-// Function to free all entities and destroy the entity map
-void destroy_all_entities(void) {
-    map_iter_t iter = map_iter_();
-    const char *key;
-    
-    while ((key = map_next_(&entity_map, &iter))) {
-        GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
-        if (entity) {
-            free(entity);
+// Apply damage to an entity
+void apply_damage(GameEntity *entity, int damage) {
+    if (entity->componentMask & COMPONENT_HEALTH) {
+        entity->health.health -= damage;
+        if (entity->health.health <= 0) {
+            // Entity dies when health reaches zero
+            remove_entity(entity);
         }
     }
-
-
-    map_remove_(&entity_map, key);
-    free(init_entities);
 }
 

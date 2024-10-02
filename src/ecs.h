@@ -1,61 +1,56 @@
 #ifndef ECS_H
 #define ECS_H
 
-#include "raylib.h"
-#include "map.h"
-#include "enemies.h" // Assuming EnemyType is declared here
-#include <stdbool.h>
+#define MAX_ENTITIES 1000  // Maximum number of entities in the ECS
 
-// Entity Components
+#include "raylib.h"  // For Rectangle, Vector2, etc.
+
+typedef enum {
+    COMPONENT_POSITION = (1 << 0),
+    COMPONENT_HEALTH = (1 << 1),
+    COMPONENT_ENEMY = (1 << 2),
+    COMPONENT_COLLISION = (1 << 3) 
+} ComponentType;
+
+// Position component for movement
 typedef struct {
-    float x, y; // Separate x and y coordinates instead of Vector2
+    float x, y;
 } PositionComponent;
 
-typedef struct {
-    float speed;
-} SpeedComponent;
-
+// Health component for storing health/damage
 typedef struct {
     int health;
-    float resistance; // Add resistance to health component
+    int damage;
 } HealthComponent;
 
+// Enemy-specific component for enemies
 typedef struct {
-    bool isActive;
-} Entity;
+    int speed;
+    int resistance;
+} EnemyComponent;
 
-// Struct to represent a full game entity
+// Collision component (bounding box)
 typedef struct {
-    Entity entity;
+    Rectangle bounds;
+} CollisionComponent;
+
+// Game entity structure
+typedef struct {
+    int id;
+    unsigned int componentMask;
     PositionComponent position;
-    SpeedComponent speed;
     HealthComponent health;
-    EnemyComponent *component; 
+    EnemyComponent enemy;
+    CollisionComponent collision;
 } GameEntity;
 
-// Initializes the entity map
-void init_entities(void);
-
-// Creates a new game entity
-GameEntity *create_entity(EnemyType type, float x, float y, float speed, int health);
-
-// Adds an entity to the entity map
-void add_entity(const char *key, GameEntity *entity);
-
-// Destroys an entity in the entity map
-void destroy_entity(const char *key);
-
-// Updates the movement system for all active entities
-void update_movement_system(float deltaTime);
-
-// Renders all active entities
-void render_system(void);
-
-// Destroys all entities and frees resources
-void destroy_all_entities(void);
-
-// Applies damage to a game entity
-void apply_damage(GameEntity *enemy, int incomingDamage);
+// Function declarations
+GameEntity* create_entity();
+void add_entity(GameEntity *entity);
+void remove_entity(GameEntity *entity);
+void update_entity_system(float deltaTime);
+void apply_damage(GameEntity *entity, int damage);
+void handle_collisions();
 
 #endif
 
