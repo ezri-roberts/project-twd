@@ -1,5 +1,7 @@
 #include "ecs.h"
 #include <stdio.h>
+#include "types.h"
+#include "entity_movement.h"
 
 // Internal array of entities
 static GameEntity entities[MAX_ENTITIES];
@@ -66,6 +68,26 @@ void update_entity_system(float deltaTime) {
     }
 }
 
+// Apply damage to an entity
+void apply_damage(GameEntity *entity, int damage, ElementType attackerType) {
+    if (entity->componentMask & COMPONENT_HEALTH) {
+	ElementType defenderType = TYPE_NONE;
+        if (entity->componentMask & COMPONENT_ENEMY) {
+            defenderType = entity->enemy.elementType;
+        }
+
+	float multiplier = get_type_multiplier(attackerType, defenderType);
+	int adjustedDamage = (int)(damage * multiplier);
+
+	entity->health.health -= adjustedDamage;
+	printf("Entity ID %d took %d damage (multiplier: %.2f). Remaining health: %d\n",
+               entity->id, adjustedDamage, multiplier, entity->health.health);
+	if (entity->health.health <= 0) {
+		remove_entity(entity);
+	}	
+    }
+}
+
 // Collision detection system: Check for collisions between entities
 void handle_collisions() {
     for (int i = 0; i < entity_count; i++) {
@@ -82,22 +104,15 @@ void handle_collisions() {
 
             // Check if their bounding boxes overlap
             if (CheckCollisionRecs(a->collision.bounds, b->collision.bounds)) {
-                // Handle the collision (e.g., apply damage, stop movement, etc.)
-                apply_damage(b, a->health.damage);
-                apply_damage(a, b->health.damage);
+                // Determine attacker and defender
+                // For simplicity, assume 'a' is the attacker for 'b' and vice versa
+                ElementType aType = (a->componentMask & COMPONENT_ENEMY) ? a->enemy.elementType : TYPE_NONE;
+                ElementType bType = (b->componentMask & COMPONENT_ENEMY) ? b->enemy.elementType : TYPE_NONE;
+
+                // Apply damage with type effectiveness
+                apply_damage(b, a->health.damage, aType);
+                apply_damage(a, b->health.damage, bType);
             }
         }
     }
 }
-
-// Apply damage to an entity
-void apply_damage(GameEntity *entity, int damage) {
-    if (entity->componentMask & COMPONENT_HEALTH) {
-        entity->health.health -= damage;
-        if (entity->health.health <= 0) {
-            // Entity dies when health reaches zero
-            remove_entity(entity);
-        }
-    }
-}
-

@@ -1,19 +1,35 @@
 #include "entity_movement.h"
+#include <math.h>
+#include "raylib.h"
 #include "map.h"
 
-// Declare entity_map as an external variable
-extern map_base_t entity_map;
+// Function to determine if the current path segment is a turn
+bool is_on_turn(const GameEntity *entity) {
+	if (((int)(entity->position.x) / 300) % 2 == 1) {
+		return true;
+	}
+	return false;
+}
+
 
 // Function to update movement of entities
 void update_movement_system(float deltaTime) {
-    map_iter_t iter = map_iter_();
-    const char *key;
+    for (int i = 0; i < entity_count; i++) {
+	    GameEntity *entity = &entities[i];
 
-    while ((key = map_next_(&entity_map, &iter))) {
-        GameEntity *entity = (GameEntity *)map_get_(&entity_map, key);
-        if (entity && entity->entity.isActive) {
-            entity->position.x += entity->speed.speed * deltaTime;
-        }
+    	    if (entity->componentMask & COMPONENT_ENEMY) {
+		    if(entity->enemy.type == SPIDER) {
+			    if (is_on_turn(entity)) {
+				    entity->enemy.currentSpeed = entity->enemy.baseSpeed * 0.7f;
+			    } else {
+				    entity->enemy.currentSpeed = entity->enemy.baseSpeed * 1.2f;
+			    }
+		    } else {
+			    entity->enemy.currentSpeed = entity->enemy.baseSpeed;
+		    }
+	    entity->position.x += entity->enemy.currentSpeed * deltaTime;
+	    entity->position.y += entity->enemy.currentSpeed * deltaTime;
+	    }
     }
 }
 

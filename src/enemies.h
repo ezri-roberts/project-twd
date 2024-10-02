@@ -3,12 +3,14 @@
 
 #include "ecs.h"
 #include "raylib.h"  // For rendering logic
-
+#include "types.h" // For ElementType and type relationships
+	
 // Define enemy types and properties
 typedef enum {
     ZOMBIE,
     SKELETON,
     SPIDER
+    SLIME
 } EnemyType;
 
 // Function declarations
