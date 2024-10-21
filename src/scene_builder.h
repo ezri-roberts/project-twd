@@ -29,8 +29,12 @@ typedef struct {
 } Scene;
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
 Scene scene_initialize(int difficulty, const char* path);
+=======
+Scene scene_init(int difficulty, const char* path);
+>>>>>>> 5cd81f77065e260827b9c3b347c794bb6cd98389
 void scene_draw(Scene *scene);
 void tileval_from_file(const char *filename, int (*arr)[TILEMAP_WIDTH]);
 void scene_randomize(Scene *scene);
