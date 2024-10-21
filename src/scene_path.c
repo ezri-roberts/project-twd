@@ -11,11 +11,13 @@
 //==================================================================================================================================
 void gen_random_path(Scene *scene) {
     int anchor[2] = {8, 1};  // Initial anchor position
+    int index = 0;
     char last; // S = Sideways, D = Down, U = Up
     char new;
     scene->tilemap.tiles[anchor[0]][anchor[1]] = 5; //Always set first tile to be sideways path
     while(anchor[1]+2 < TILEMAP_WIDTH)
     {
+    index = save_waypoint(scene, anchor, index);   
     gen_section(scene, anchor, &last, &new);
     }
 }
@@ -127,6 +129,16 @@ int anchor_turn(char *last, char *new) {
         BendType = 5;
     }
     return BendType;
+}
+//==================================================================================================================================
+int save_waypoint(Scene *scene, int *anchor, int index) {
+    float x = (anchor[1] * 16) + 8;
+    float y = (anchor[0] * 16) + 8;
+    scene->tilemap.waypoints[index].x = x;
+    scene->tilemap.waypoints[index].y = y;
+    printf("Index: %d ---- Waypoint: %f , %f\n",index,x,y);
+    index++;
+    return index;
 }
 //==================================================================================================================================
 char set_last(char *last, char *new) {

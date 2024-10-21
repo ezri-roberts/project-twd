@@ -18,8 +18,8 @@ enum TileTypes {
 typedef struct {
 	Asset *asset_ptr;
 	int tiles[TILEMAP_HEIGHT][TILEMAP_WIDTH];
+	Vector2 waypoints[30];
 } Tilemap;
-
 
 typedef struct {
 	int difficulty;
