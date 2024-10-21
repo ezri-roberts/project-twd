@@ -5,10 +5,11 @@
 #include "scene_builder.h"
 #include "scene_path.h"
 #include "assets.h"
+#include "game.h"
 #include <stdio.h>
 
 
-//==================================================================================================================================
+
 void gen_random_path(Scene *scene) {
     int anchor[2] = {8, 1};  // Initial anchor position
     int index = 0; // This is to keep track of where the newest waypoint needs to go in the Tilemap struct
@@ -21,30 +22,33 @@ void gen_random_path(Scene *scene) {
     gen_section(scene, anchor, &last, &new); 
     }
 }
-//==================================================================================================================================
+
+
 void gen_section(Scene *scene, int *anchor, char *last, char *new) {
 
-    int distance = GetRandomValue(2,6);
+    int DistanceRight = GetRandomValue(2,6);
+    int DistanceUpDown = GetRandomValue(1,1);
     int UpOrDown = GetRandomValue(1,2);
     char last_val = *last;
 
         if (last_val == 'S'){ //PATH WAS GOING SIDE
             if (UpOrDown == 1){ //PATH IS GOING UP
-            distance = check_for_edge(anchor, distance, UpOrDown);
-            path_up(scene, anchor, distance, last, new);
+            DistanceUpDown = check_for_edge(anchor, DistanceUpDown, UpOrDown);
+            path_up(scene, anchor, DistanceUpDown, last, new);
             }
             if (UpOrDown == 2){ //PATH IS GOING DOWN
-            distance = check_for_edge(anchor, distance, UpOrDown);
-            path_down(scene, anchor, distance, last, new);
+            DistanceUpDown = check_for_edge(anchor, DistanceUpDown, UpOrDown);
+            path_down(scene, anchor, DistanceUpDown, last, new);
             }
         }
         else{
             UpOrDown = 0; //PATH IS GOING RIGHT
-            distance = check_for_edge(anchor, distance, UpOrDown);
-            path_right(scene, anchor, distance, last, new);
+            DistanceRight = check_for_edge(anchor, DistanceRight, UpOrDown);
+            path_right(scene, anchor, DistanceRight, last, new);
             }
 }
-//==================================================================================================================================
+
+
 int check_for_edge(int *anchor, int distance, int UpOrDown) {
     int NewDistance = 0;
         switch(UpOrDown) {
@@ -75,7 +79,8 @@ int check_for_edge(int *anchor, int distance, int UpOrDown) {
         }
     return NewDistance;
 }
-//==================================================================================================================================
+
+
 void path_right(Scene *scene, int *anchor, int distance, char *last, char *new) {
     *new = 'S'; // S = Sideways, D = Down, U = Up
     scene->tilemap.tiles[anchor[0]][anchor[1]] = anchor_turn(last, new); //Updates the corner tile that is turning
@@ -86,7 +91,8 @@ void path_right(Scene *scene, int *anchor, int distance, char *last, char *new) 
     }
     set_last(last, new);
 }
-//==================================================================================================================================
+
+
 void path_up(Scene *scene, int *anchor, int distance, char *last, char *new) {
     if (distance == 0){*new = 'S';}
     else{*new = 'U';} // S = Sideways, D = Down, U = Up
@@ -98,7 +104,8 @@ void path_up(Scene *scene, int *anchor, int distance, char *last, char *new) {
     }
     set_last(last, new);
 }
-//==================================================================================================================================
+
+
 void path_down(Scene *scene, int *anchor, int distance, char *last, char *new) {
     if (distance == 0){*new = 'S';}
     else{*new = 'D';} // S = Sideways, D = Down, U = Up
@@ -111,7 +118,8 @@ void path_down(Scene *scene, int *anchor, int distance, char *last, char *new) {
     }
     set_last(last, new);
 }
-//==================================================================================================================================
+
+
 int anchor_turn(char *last, char *new) {
     int BendType;
     if (*last == 'S' && *new == 'R') { // S = Sideways, D = Down, U = Up
@@ -129,7 +137,8 @@ int anchor_turn(char *last, char *new) {
     }
     return BendType;
 }
-//==================================================================================================================================
+
+
 int save_waypoint(Scene *scene, int *anchor, int index) {
     float x = (anchor[1] * 16) + 8;
     float y = (anchor[0] * 16) + 8;
@@ -144,7 +153,7 @@ int save_waypoint(Scene *scene, int *anchor, int index) {
     }
     return index;
 }
-//==================================================================================================================================
+
 char set_last(char *last, char *new) {
     *last = *new;
     return *last;

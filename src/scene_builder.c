@@ -5,6 +5,7 @@
 #include "scene_builder.h"
 #include "scene_path.h"
 #include "assets.h"
+#include "game.h"
 
 void tileval_from_file(const char *filename, int (*tiles)[TILEMAP_WIDTH]) {
 
@@ -28,20 +29,10 @@ void tileval_from_file(const char *filename, int (*tiles)[TILEMAP_WIDTH]) {
 }
 
 
+
 void scene_draw(Scene *scene)
 {
-	Vector2 tile_tex_coords[10] = {
-		(Vector2){0,0},
-		(Vector2){16,0},
-		(Vector2){32,0},
-		(Vector2){48,0},
-		(Vector2){64,0},
-		(Vector2){80,0},
-		(Vector2){96,0},
-		(Vector2){112,0},
-		(Vector2){0,16},
-		(Vector2){16,16}
-	};
+
 
 	for(int y=0; y<TILEMAP_HEIGHT; y++) {
 
@@ -50,7 +41,6 @@ void scene_draw(Scene *scene)
 			int tile = scene->tilemap.tiles[y][x];
 			int xp = x * TILESIZE;
 			int yp = y * TILESIZE;
-
 			asset_draw_tile(scene->tilemap.asset_ptr, tile, xp, yp);
 		}
 	}
@@ -73,21 +63,16 @@ void scene_randomize(Scene *scene) {
 	for (int y = 0; y < TILEMAP_HEIGHT; y++) {
 		for (int x = 0; x < TILEMAP_WIDTH; x++) {
 
-			//if (y == 8) {
-				//scene->tilemap.tiles[y][x] = 5;
-			//} else {
-
 				int r = GetRandomValue(0, 10);
 				if (r <= 4) {
 					scene->tilemap.tiles[y][x] = 0;
 				} else if (r > 4 && r <= 8) {
-					scene->tilemap.tiles[y][x] = 1;
+					scene->tilemap.tiles[y][x] = 1; 
 				} else if (r > 8 && r <= 9) {
 					scene->tilemap.tiles[y][x] = 2;
 				} else if (r == 10) {
 					scene->tilemap.tiles[y][x] = 3;
 				}
-			//}
 
 		}
 	}

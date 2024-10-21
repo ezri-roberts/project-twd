@@ -81,6 +81,8 @@ void game_update() {
 		if (IsKeyDown(KEY_LEFT_ALT) && IsKeyPressed(KEY_R)) {
 			text_input_reset(&input);
 			input.target = wordlist_get(list.easy);
+			game.difficulty++;
+			printf("The difficulty is: %d\n",game.difficulty);
 			scene_randomize(&scene);
 		}
 

@@ -11,6 +11,7 @@ typedef struct {
 	float dt;	// Delta Time.
 	Canvas canvas;
 	Canvas ui_canvas;
+	int difficulty;
 } Game;
 
 // Initializes the game struct.
