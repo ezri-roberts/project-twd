@@ -27,7 +27,7 @@ void gen_random_path(Scene *scene) {
 void gen_section(Scene *scene, int *anchor, char *last, char *new) {
 
     int DistanceRight = GetRandomValue(2,6);
-    int DistanceUpDown = GetRandomValue(1,1);
+    int DistanceUpDown = GetRandomValue(1,6-game_get_difficulty());
     int UpOrDown = GetRandomValue(1,2);
     char last_val = *last;
 

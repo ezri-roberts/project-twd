@@ -82,6 +82,8 @@ void game_update() {
 			text_input_reset(&input);
 			input.target = wordlist_get(list.easy);
 			scene_randomize(&game.scene);
+			printf("Difficulty: %d\n",game.difficulty);
+			game.difficulty++;
 		}
 
 		canvas_update(&game.canvas);
