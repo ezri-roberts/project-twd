@@ -83,7 +83,10 @@ void game_update() {
 			input.target = wordlist_get(list.easy);
 			scene_randomize(&game.scene);
 			printf("Difficulty: %d\n",game.difficulty);
+			if (game.difficulty < 10)
+			{
 			game.difficulty++;
+			}
 		}
 
 		canvas_update(&game.canvas);
